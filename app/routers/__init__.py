@@ -1,0 +1,1 @@
+from .bookmarks import get_router as get_bookmarks_router
