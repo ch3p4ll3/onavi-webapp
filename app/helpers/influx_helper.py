@@ -29,11 +29,19 @@ class InfluxHelper:
                     }
                 else:
                     data[record.get_time()][record.get_field()] = record.get_value()
+        
+        return InfluxHelper.parse_data(data)
 
+    @staticmethod
+    def parse_data(data: dict) -> List[Measurement]:
+        to_ret = []
         for i in data:
-            yield Measurement(
+            to_ret.append(Measurement(
                     x=data[i].get("x"),
                     y=data[i].get("y"),
                     z=data[i].get("z"),
                     time=i.timestamp()
-                ).model_dump_json()
+                )
+            )
+
+        return to_ret

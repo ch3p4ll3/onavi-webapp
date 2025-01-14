@@ -1,0 +1,111 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="position-relative">
+            <div class="position-absolute top-0 end-0 pt-4">
+                <a href="/bookmarks" class="btn btn-primary ">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bookmark" viewBox="0 0 16 16">
+                        <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.101l-5.223 2.815A.5.5 0 0 1 2 15.5V2zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1H4z" />
+                    </svg>
+                    &nbsp;
+                    Bookmarks
+                </a>
+            </div>
+        </div>
+
+        <h1 class="text-center pt-3">Onavi Sensor</h1>
+
+        <div class="row justify-content-center pt-5">
+            <div class="col col-sm-12 col-md-3 col-12">
+                <div class="input-group mb-3">
+                    <label class="input-group-text" for="influx_start_datetime">Start</label>
+                    <input type="datetime-local" class="form-select" id="influx_start_datetime">
+                </div>
+            </div>
+
+            <div class="col col-sm-12 col-md-3 col-12">
+                <div class="input-group mb-3">
+                    <label class="input-group-text" for="influx_stop_datetime">Stop</label>
+                    <input type="datetime-local" class="form-select" id="influx_stop_datetime">
+                </div>
+            </div>
+        </div>
+
+        <div class="row justify-content-center pt-3">
+            <div class="col-3 text-center">
+                <button class="btn btn-success" onclick="submit()">Submit</button>
+            </div>
+        </div>
+
+        <div class="mt-3" id="plot"></div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+
+<script>
+    function formatDate(date) {
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0'); // Add leading zero for single-digit months
+        const day = String(date.getDate()).padStart(2, '0'); // Add leading zero for single-digit days
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+    }
+    
+    function convertToUTC(localDatetime) {
+        // Get the input value
+        if (!localDatetime) {
+            return;
+        }
+
+        // Convert to a Date object
+        const localDate = new Date(localDatetime);
+
+        return localDate
+    }
+
+    document.onreadystatechange = () => {
+        let stop_date = new Date();
+        let start_date = new Date(stop_date.getTime() - 10 * 60000);
+
+        document.getElementById("influx_stop_datetime").value = formatDate(stop_date);
+        document.getElementById("influx_start_datetime").value = formatDate(start_date);
+    }
+
+</script>
+
+<script>
+    async function get_plot_data(url) {
+        try {
+            const response = await fetch(url);
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+
+            return await response.json();
+        } catch (err) {
+            console.error("Error reading stream:", err);
+        }
+    }
+
+
+    async function submit() {
+        const start = document.getElementById("influx_start_datetime").value;
+        const stop = document.getElementById("influx_stop_datetime").value
+
+        const start_utc = convertToUTC(start);
+        const stop_utc = convertToUTC(stop);
+
+        let plot_url = `{{ url_for('plot') }}?start=${start_utc.toISOString()}&stop=${stop_utc.toISOString()}`;
+
+        plot_data = await get_plot_data(plot_url)
+
+        Plotly.newPlot('plot', plot_data);
+    }
+</script>
+
+{% endblock %}

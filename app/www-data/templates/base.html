@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Onavi Webapp</title>
+    <link rel="shortcut icon" href="{{ url_for('static', path='/icons/icon.svg') }}" type="image/x-icon">
+    <script src="https://cdn.plot.ly/plotly-2.35.2.min.js" charset="utf-8"></script>
+    <link rel="stylesheet" href="{{ url_for('static', path='/css/bootstrap-icons.min.css') }}">
+    <link href="{{ url_for('static', path='/css/bootstrap.min.css') }}" rel="stylesheet">
+    <link rel="manifest" href="{{ url_for('static', path='/manifest.json') }}"/>
+    <script>navigator.serviceWorker.register("{{ url_for('static', path='/js/service-worker.js') }}")</script>
+    <script src="{{ url_for('static', path='/js/constants.js') }}"></script>
+</head>
+
+<body data-bs-theme="dark">
+<div class="container-fluid">
+    {% block content %}
+        <!-- Default content -->
+        <p>This is the default content.</p>
+    {% endblock %}
+
+</div>
+
+<script src="{{ url_for('static', path='/js/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ url_for('static', path='/js/popper.min.js') }}"></script>
+<script src="{{ url_for('static', path='/js/bootstrap.min.js') }}"></script>
+
+<script>
+    async function make_delete_request(url, body, add_headers = true, stringify = true) {
+        headers = {
+            "content-type": "application/json",
+            'Accept': 'application/json',
+        }
+
+        let result = await fetch(url, {
+            method: "DELETE",
+            headers: add_headers ? headers : {},
+            body: stringify ? JSON.stringify(body) : body
+        });
+
+        return result;
+    }
+
+    async function make_put_request(url, body, add_headers = true, stringify = true) {
+        headers = {
+            "content-type": "application/json",
+            'Accept': 'application/json',
+        }
+
+        let result = await fetch(url, {
+            method: "PUT",
+            headers: add_headers ? headers : {},
+            body: stringify ? JSON.stringify(body) : body
+        });
+
+        return result;
+    }
+
+    async function make_post_request(url, body, add_headers = true, stringify = true) {
+        headers = {
+            "content-type": "application/json",
+            'Accept': 'application/json',
+        }
+
+        let result = await fetch(url, {
+            method: "POST",
+            headers: add_headers ? headers : {},
+            body: stringify ? JSON.stringify(body) : body
+        });
+
+        return result;
+    }
+
+    async function make_get_request(url) {
+        const result = await fetch(url, {
+            method: "GET"
+        });
+
+        return result;
+    }
+</script>
+
+{% block scripts %}
+
+{% endblock %}
+</body>
+
+</html>
