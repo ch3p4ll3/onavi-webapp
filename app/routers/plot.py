@@ -7,6 +7,7 @@ from ..helpers.influx_helper import InfluxHelper
 from ..helpers.utils import Utils
 from ..entities.plotly_plot import PlotlyPlot
 
+
 def get_router():
     router = APIRouter()
 

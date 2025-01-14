@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="position-relative">
+        <div class="position-absolute top-0 end-0 pt-4">
+            <a href="{{ url_for('index') }}" class="btn btn-primary ">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-activity" viewBox="0 0 16 16">
+                    <path fill-rule="evenodd" d="M6 2a.5.5 0 0 1 .47.33L10 12.036l1.53-4.208A.5.5 0 0 1 12 7.5h3.5a.5.5 0 0 1 0 1h-3.15l-1.88 5.17a.5.5 0 0 1-.94 0L6 3.964 4.47 8.171A.5.5 0 0 1 4 8.5H.5a.5.5 0 0 1 0-1h3.15l1.88-5.17A.5.5 0 0 1 6 2Z"/>
+                    </svg>
+                &nbsp;
+                Live Data
+            </a>
+        </div>
+    </div>
+
+    <h1 class="text-center pt-3">Onavi Sensor</h1>
+
+    <div class="row justify-content-center pt-5 bookmarks">
+        {% if bookmarks | length > 0 %}
+            {% for i in bookmarks %}
+                <div class="col col-sm-12 col-md-3 bookmark">
+                    <div class="card">
+                        <h5 class="card-header">{{i.description}}</h5>
+                        <div class="card-body">
+                            <div class="card-text">
+                                <p>Date: {{ i.date.strftime('%d/%m/%Y') }}</p>
+                                <p>Time: {{ i.date.strftime('%H:%M:%S.%f') }}</p>
+                            </div>
+
+                            <div class="btn-group" role="group" aria-label="Basic outlined example">
+                                <button class="btn btn-success" onclick='plot({{ i.id }})'>Plot</button>
+
+                                <button class="btn btn-danger ms-1" onclick='removeBookMark({{ i.id }}, this)'>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-bookmark-dash" viewBox="0 0 16 16">
+                                        <path fill-rule="evenodd" d="M5.5 6.5A.5.5 0 0 1 6 6h4a.5.5 0 0 1 0 1H6a.5.5 0 0 1-.5-.5z"/>
+                                        <path d="M2 2a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v13.5a.5.5 0 0 1-.777.416L8 13.101l-5.223 2.815A.5.5 0 0 1 2 15.5V2zm2-1a1 1 0 0 0-1 1v12.566l4.723-2.482a.5.5 0 0 1 .554 0L13 14.566V2a1 1 0 0 0-1-1H4z"/>
+                                    </svg>
+                                    Remove from Bookmarks    
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="position-absolute top-50 start-50 translate-middle">
+                <h2 class="text-center">No Bookmarks found</h2>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
+
+{% block scripts %}
+
+<script>
+    async function removeBookMark(bookmarkId, element) {
+        const response = await fetch(`${base_url}/api/bookmarks/${bookmarkId}`, {
+            method: 'DELETE'
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        element.parentElement.parentElement.parentElement.parentElement.remove()
+    }
+</script>
+
+{% endblock %}

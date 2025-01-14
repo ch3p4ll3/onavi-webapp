@@ -40,7 +40,7 @@ def get_router():
             raise HTTPException(status_code=404, detail="Bookmark not found")
         return bookmark
 
-    @router.delete("/{id}", response_model=bool)
+    @router.delete("/{id}", response_model=bool, name="bookmark_delete")
     async def delete_bookmark(id: int, db: Annotated[Session, Depends(get_session)]):
         is_deleted = Bookmark.delete(bookmark_id=id, db=db)
 

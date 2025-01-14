@@ -28,6 +28,9 @@
 <script src="{{ url_for('static', path='/js/bootstrap.min.js') }}"></script>
 
 <script>
+
+    let base_url = window.location.protocol + '//' + window.location.host;
+
     async function make_delete_request(url, body, add_headers = true, stringify = true) {
         headers = {
             "content-type": "application/json",

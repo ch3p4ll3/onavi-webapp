@@ -30,8 +30,8 @@ app = FastAPI(lifespan=lifespan)
 
 app.add_middleware(GZipMiddleware, minimum_size=1000)
 
-app.include_router(get_bookmarks_router(), prefix="/bookmarks")
-app.include_router(get_plot_router(), prefix="/plot")
+app.include_router(get_bookmarks_router(), prefix="/api/bookmarks")
+app.include_router(get_plot_router(), prefix="/api/plot")
 
 app.mount("/static", StaticFiles(directory=base_path / "www-data/static"), name="static")
 app.include_router(get_pages_router(templates))
