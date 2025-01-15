@@ -1,6 +1,9 @@
 from typing import Annotated, List
 
-from fastapi import APIRouter, Depends, HTTPException
+from datetime import datetime
+from io import BytesIO
+
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, Form
 from sqlmodel import Session
 
 from ..database import get_session
@@ -9,6 +12,9 @@ from ..entities.bookmark.bookmark_public import BookmarkPublic
 from ..entities.bookmark.bookmark_create import BookmarkCreate
 from ..entities.bookmark.bookmark_update import BookmarkUpdate
 from ..entities.bookmark.bookmark import Bookmark
+
+from ..helpers.utils import Utils
+from ..helpers.influx_helper import InfluxHelper
 
 
 def get_router():
@@ -47,5 +53,22 @@ def get_router():
         if not is_deleted:
             raise HTTPException(status_code=404, detail="Bookmark not found")
         return is_deleted
+    
+    @router.post("/import")
+    async def import_from_csv(csv_file: UploadFile, event_time: Annotated[datetime, Form()], description: Annotated[str, Form()], db: Annotated[Session, Depends(get_session)]):
+        file_like_object = BytesIO(await csv_file.read())
+        file_like_object.name = csv_file.filename
+
+        measurements = await Utils.import_csv_file(file_like_object)
+
+        # write to influx retention bucket
+        await InfluxHelper.write_influx(measurements)
+
+        # create bookmark
+        bookmark = Bookmark(
+            date=event_time,
+            description=description
+        )
+        Bookmark.create(db, bookmark)
 
     return router

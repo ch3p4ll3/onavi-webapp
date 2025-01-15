@@ -12,3 +12,16 @@ class Measurement(BaseModel):
     @property
     def magnitude(self) -> float:
         return sqrt(self.x ** 2 + self.y ** 2 + self.z ** 2)
+
+    @property
+    def to_dict(self):
+        return {
+            "measurement": "MssMeasurement",
+            "fields": {
+                "x": self.x,
+                "y": self.y,
+                "z": self.z,
+                "magnitude": self.magnitude
+            },
+            "time": int(self.time)
+        }

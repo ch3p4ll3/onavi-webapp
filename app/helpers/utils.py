@@ -1,7 +1,10 @@
 from typing import List
+from io import BytesIO, TextIOWrapper
+from csv import reader
 
 from ..entities.measurement import Measurement
 from ..entities.plotly_plot import PlotlyPlot
+
 
 
 class Utils:
@@ -24,3 +27,24 @@ class Utils:
             magnitude.y.append(i.magnitude)
         
         return [x, y, z, magnitude]
+
+    @staticmethod
+    async def import_csv_file(data: BytesIO) -> List[Measurement]:
+        measurements = []
+        csv_file = TextIOWrapper(data, encoding="utf-8")
+
+        spamreader = reader(csv_file, delimiter=',')
+
+        next(spamreader) # skip header
+
+        for row in spamreader:
+            measurements.append(
+                Measurement(
+                    time=float(row[0]) * 1e9,
+                    x=float(row[1]),
+                    y=float(row[2]),
+                    z=float(row[3])
+                )
+            )
+
+        return measurements

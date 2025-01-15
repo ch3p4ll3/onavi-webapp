@@ -1,6 +1,7 @@
 from datetime import datetime
 from typing import List
 
+from influxdb_client import Point, WritePrecision
 from influxdb_client.client.influxdb_client_async import InfluxDBClientAsync
 
 from ..entities.measurement import Measurement
@@ -10,6 +11,7 @@ url = "http://10.188.26.12:8086"
 token = "8l8-oOgUaLbY9K-clEVJ9cHOGLeVxpVJq2ZKIO-HxIoCIrLnMiVx0UiJ_IYu4iorkg6BmtqrXCiBsGiBlzJJng=="
 org = "org"
 bucket = "seismograph"
+bucket_retention = "seismograph_saved"
 
 
 class InfluxHelper:
@@ -31,6 +33,15 @@ class InfluxHelper:
                     data[record.get_time()][record.get_field()] = record.get_value()
         
         return InfluxHelper.parse_data(data)
+
+    @staticmethod
+    async def write_influx(data: List[Measurement]):        
+        async with InfluxDBClientAsync(url=url, token=token, org=org, timeout=900000) as client:
+            write_api = client.write_api()
+
+            data_to_save = list(map(lambda x: Point.from_dict(x.to_dict, WritePrecision.NS), data))
+
+            await write_api.write(bucket=bucket_retention, record=data_to_save)
 
     @staticmethod
     def parse_data(data: dict) -> List[Measurement]:
